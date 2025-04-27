@@ -1,0 +1,128 @@
+ // Branch Transfer response
+ 
+ {
+        "id": 8072,
+        "createdDate": "2024-04-03T21:43:00Z",
+        "modifiedDate": "2024-04-16T20:32:06Z",
+        "createdBy": 81145,
+        "processedBy": 120481,
+        "approvedBy": 81145,
+        "isApproved": true,
+        "reference": "TRF-8072",
+        "branchEmail": "brite.dy-yakah@tapin3pl.com",
+        "deliveryInstructions": "",
+        "internalComments": "Delivery confirmed 16/4",
+        "productTotal": 2490.0000,
+        "firstName": "Eric",
+        "lastName": "Beghi",
+        "company": "Biere Appro (EU)",
+        "email": "eric.beghi@biere-boutique.fr",
+        "phone": "",
+        "mobile": "+33 6 17 46 45 28",
+        "fax": "",
+        "projectName": "Nelson for Tap In ",
+        "trackingCode": "",
+        "source": "Cloud",
+        "sourceBranchId": 802,
+        "destinationBranchId": 1361,
+        "approvalDate": "2024-04-03T11:00:00Z",
+        "dispatchedDate": "2024-04-09T20:31:00Z",
+        "receivedDate": "2024-04-15T20:31:00Z",
+        "stage": "",
+        "customFields": {
+            "orders_1000": null
+        },
+        "lineItems": [
+            {
+                "createdDate": "2024-04-16T20:32:06Z",
+                "transactionId": 8072,
+                "parentId": 0,
+                "productId": 1294,
+                "productOptionId": 12845,
+                "integrationRef": "0",
+                "sort": 11,
+                "code": "SV23-D15M-NSN_SPOT",
+                "name": "Nelson Sauvin T90 Hop Pellets",
+                "option1": "",
+                "option2": "SPOT",
+                "option3": "",
+                "qty": 60.0,
+                "id": 34572,
+                "qtyTransferred": 60,
+                "unitCost": 8.3000,
+                "sizes": []
+            },
+			
+			
+// Branch Response
+
+	  {
+        "id": 1361,
+        "createdDate": "2023-07-14T00:42:28Z",
+        "modifiedDate": "2024-05-30T04:56:27Z",
+        "isActive": true,
+        "company": "Tap In (UK)",
+        "firstName": "Brite",
+        "lastName": "Dy Yakah",
+        "jobTitle": "Client Relationship Manager",
+        "email": "brite.dy-yakah@tapin3pl.com",
+        "website": "",
+        "phone": "0203 436 0140 | Ext 740",
+        "fax": "",
+        "mobile": "",
+        "address1": "68 Hailey Road",
+        "address2": "",
+        "city": "Erith",
+        "state": "",
+        "postCode": "DA18 4AU",
+        "country": "UK",
+        "postalAddress1": "68 Hailey Road",
+        "postalAddress2": "",
+        "postalCity": "Erith",
+        "postalPostCode": "DA18 4AU",
+        "postalState": "",
+        "postalCountry": "UK",
+        "notes": "",
+        "integrationRef": null,
+        "customFields": {
+            "members_1000": 0.0000000000,
+            "members_1001": ""
+        },
+        "secondaryContacts": [
+            {
+                "id": 1978,
+                "company": "Tap In (UK)",
+                "firstName": "Ecom",
+                "lastName": "",
+                "jobTitle": "",
+                "email": "ecom@tapin3pl.com",
+                "mobile": "",
+                "phone": ""
+            },
+            {
+                "id": 1979,
+                "company": "Tap In (UK)",
+                "firstName": "Chay",
+                "lastName": "Kinslow",
+                "jobTitle": "",
+                "email": "chay.kinslow@tapin3pl.com",
+                "mobile": "",
+                "phone": ""
+            },
+            {
+                "id": 1980,
+                "company": "Tap In (UK)",
+                "firstName": "Daria",
+                "lastName": "",
+                "jobTitle": "",
+                "email": "daria.koszelny@tapin3pl.com",
+                "mobile": "",
+                "phone": ""
+            }
+        ],
+        "branchType": "02 Warehouse",
+        "stockControlOptions": "",
+        "taxStatus": "",
+        "accountNumber": null,
+        "branchLocations": []
+    },		

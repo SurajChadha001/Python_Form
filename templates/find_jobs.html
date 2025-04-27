@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Available Jobs</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fonticon/3.0.0/css/fonticon.min.css" />
+
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    .card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .btn-group-fixed {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .fixed-width-btn {
+      width: 100px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+    }
+
+    .globe-icon {
+      width: 24px;
+      height: 14px;
+      margin-right: 8px;
+      color: red;
+    }
+
+    .logo-text {
+      font-size: 16px;
+      color: #333;
+    }
+
+    footer {
+      position: relative;
+      min-height: 200px;
+      clear: both;
+    }
+
+    .footer-section {
+      flex: 1 1 200px;
+      margin: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .footer-section {
+        flex: 1 1 100%;
+        text-align: center;
+      }
+    }
+
+    /* Modal styles */
+    .cv-option-modal .modal-dialog {
+      max-width: 400px;
+    }
+
+    .cv-option-modal .modal-body {
+      padding: 20px;
+    }
+
+    .cv-option-modal .form-select {
+      margin-bottom: 20px;
+    }
+  </style>
+
+</head>
+
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <div class="logo">
+        <i class="fa-solid fa-globe globe-icon"></i>
+        <span class="logo-text">WorkAbroad</span>
+      </div>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">Find a Job</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
+          </li>
+          {% if session.get('admin') %}
+          <li class="nav-item">
+            <a class="btn btn-primary ms-2" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+          </li>
+          {% endif %}
+          {% if current_user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link ms-2 text-white" href="{{ url_for('logout') }}"
+              style="background-color: #6c757d; padding: 8px 16px; border-radius: 5px;">
+              Logout
+            </a>
+          </li>
+          {% else %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="position-fixed top-0 start-50 translate-middle-x mt-5 z-3" style="z-index: 1055;">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="toast align-items-center text-white bg-success border-0 show" role="alert" aria-live="assertive"
+      aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          {{ messages[0] }}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+          aria-label="Close"></button>
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+  </div>
+  <main>
+    <div class="container mt-5">
+      <h2>Available Jobs</h2>
+      <div class="row">
+        {% for job in jobs %}
+        <div class="col-md-4 d-flex">
+          <div class="card mb-3 w-100">
+            <div class="card-body">
+              <div>
+                <h5 class="card-title">{{ job['job_name'] }}</h5>
+                <p class="card-text">{{ job['job_description'] }}</p>
+                <p class="card-text"><small class="text-muted">{{ job['company_name'] }}</small></p>
+              </div>
+              <div class="btn-group-fixed">
+                <form action="{{ url_for('apply_or_save_job', job_id=job.id, action='apply') }}" method="POST" class="apply-form">
+                  <button type="submit" class="btn btn-primary" style="width: 100px; ">Apply</button>
+                </form>
+                <form action="{{ url_for('apply_or_save_job', job_id=job.id, action='save') }}" method="POST">
+                  <button type="submit" class="btn btn-secondary" style="width: 100px;">Save</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+          <p>No jobs available at the moment.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+   
+  </main>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+  <footer class="bg-dark text-white py-4">
+    <div class="container">
+      <div class="d-flex flex-wrap justify-content-between align-items-start">
+        <div class="footer-section">
+          <h5><i class="fa-solid fa-globe text-danger"></i> WorkAbroad</h5>
+          <p>Helping international workers find jobs, accommodation, and services in Germany.</p>
+          <div>
+            <a href="#" class="text-white me-3"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h5>Services</h5>
+          <ul class="list-unstyled mb-0">
+            <li>
+              <a href="#" class="text-white text-decoration-none">Jobs in Germany</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Accommodation</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Transport Services</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Language Support</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Tax Refund Assistance</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h5>For Workers</h5>
+          <ul class="list-unstyled mb-0">
+            <li>
+              <a href="#" class="text-white text-decoration-none">Your Profile</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Service Packages</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Working in Germany</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">FAQ</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Travel Tips</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h5>Contact Us</h5>
+          <p>
+            <i class="fas fa-map-marker-alt text-danger"></i> Friedrichstraße 123, 10117 Berlin
+          </p>
+          <p>
+            <i class="fas fa-phone-alt text-danger"></i> +49 30 123456789
+          </p>
+          <p>
+            <i class="fas fa-envelope text-danger"></i> info@workabroad.de
+          </p>
+        </div>
+      </div>
+
+      <hr class="bg-white my-3" />
+
+      <div class="d-flex justify-content-between align-items-center flex-wrap mt-4">
+        <p class="mb-0">© 2025 WorkAbroad. All rights reserved.</p>
+
+        <div class="ms-auto">
+          <a href="#" class="text-white me-3 text-decoration-none">Privacy Policy</a>
+          <a href="#" class="text-white me-3 text-decoration-none">Terms of Service</a>
+          <a href="#" class="text-white text-decoration-none">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.querySelectorAll(".apply-form").forEach(form => {
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            // Get the latest CV data from the database
+            fetch('/get_latest_cv')
+                .then(response => response.json())
+                .then(data => {
+                    const hasCvText = data.cv_text !== null && data.cv_text !== '';
+                    const hasCvFile = data.cv_file !== null && data.cv_file !== '';
+
+                    if (!hasCvText && !hasCvFile) {
+                        alert("No CV uploaded. Please upload a CV in your profile before applying.");
+                        return;
+                    }
+
+                    const modal = document.getElementById("cvChoiceModal");
+                    const textOption = document.getElementById("textOption");
+                    const fileOption = document.getElementById("fileOption");
+
+                    // Clear any previous selections
+                    document.querySelectorAll('input[name="cv_choice_modal"]').forEach(radio => {
+                        radio.checked = false;
+                    });
+
+                    // Show only the available option
+                    if (hasCvText && !hasCvFile) {
+                        textOption.style.display = 'block';
+                        fileOption.style.display = 'none';
+                        document.querySelector('input[name="cv_choice_modal"][value="text"]').checked = true;
+                    } else if (!hasCvText && hasCvFile) {
+                        textOption.style.display = 'none';
+                        fileOption.style.display = 'block';
+                        document.querySelector('input[name="cv_choice_modal"][value="file"]').checked = true;
+                    } else if (hasCvText && hasCvFile) {
+                        textOption.style.display = 'block';
+                        fileOption.style.display = 'block';
+                    }
+
+                    modal.style.display = "block";
+
+                    document.getElementById("cvChoiceConfirm").onclick = () => {
+                        const choice = document.querySelector('input[name="cv_choice_modal"]:checked')?.value;
+
+                        if (!choice) {
+                            alert("Please select a CV format.");
+                            return;
+                        }
+
+                        if ((choice === 'text' && !hasCvText) || (choice === 'file' && !hasCvFile)) {
+                            alert("Invalid selection. This CV type is not available.");
+                            return;
+                        }
+
+                        let input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = "cv_choice";
+                        input.value = choice;
+                        form.appendChild(input);
+
+                        modal.style.display = "none";
+                        form.submit();
+                    };
+
+                    document.getElementById("cvChoiceCancel").onclick = () => {
+                        modal.style.display = "none";
+                    };
+                })
+                .catch(error => {
+                    console.error('Error fetching CV data:', error);
+                    alert("Error checking CV data. Please try again.");
+                });
+        });
+    });
+</script>
+
+<div id="cvChoiceModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+    <div style="background:#fff; padding:20px; max-width:300px; margin:100px auto; border-radius:8px; text-align:center;">
+        <p>You are about to Apply for this job.<br>Select CV format:</p>
+        <div id="textOption" style="display:none;">
+            <label><input type="radio" name="cv_choice_modal" value="text"> Use CV Text</label><br>
+        </div>
+        <div id="fileOption" style="display:none;">
+            <label><input type="radio" name="cv_choice_modal" value="file"> Use CV File</label><br>
+        </div>
+        <div id="noCvOption" style="display:none;">
+            <label><input type="radio" name="cv_choice_modal" value="none" checked> No CV Uploaded</label><br>
+        </div>
+        <br>
+        <button id="cvChoiceConfirm">Confirm</button>
+        <button id="cvChoiceCancel">Cancel</button>
+    </div>
+</div>
+
+      
+       
+    
+</body>
+
+</html>

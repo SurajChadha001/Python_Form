@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Profile Page</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fonticon/3.0.0/css/fonticon.min.css" />
+
+
+  <script>
+    function validateForm(event) {
+
+      event.preventDefault();
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+      const firstName = document.querySelector(
+        'input[name="first_name"]'
+      ).value;
+      const lastName = document.querySelector(
+        'input[name="last_name"]'
+      ).value;
+
+      document.getElementById("firstNameError").innerText = "";
+      document.getElementById("lastNameError").innerText = "";
+      document.getElementById("phoneError").innerText = "";
+      document.getElementById("addressError").innerText = "";
+      const phone = document.querySelector('input[name="phone"]').value;
+      const address = document.querySelector('input[name="address"]').value;
+
+      let isValid = true;
+
+
+      if (firstName == "") {
+        document.getElementById("firstNameError").innerText =
+          "Please enter your first name.";
+        isValid = false;
+      }
+
+      if (firstName.length < 3) {
+        document.getElementById("firstNameError").innerText =
+          "Please enter a valid first name.";
+        isValid = false;
+      }
+
+      if (lastName == "") {
+        document.getElementById("lastNameError").innerText =
+          "Please enter your last name.";
+        isValid = false;
+      }
+
+      if (lastName.length < 3) {
+        document.getElementById("lastNameError").innerText =
+          "Please enter a valid last name.";
+        isValid = false;
+      }
+
+      if (address == "") {
+        document.getElementById("addressError").innerText =
+          "Please Enter your Address";
+        isValid = false;
+      }
+
+      if (phone == "") {
+        document.getElementById("phoneError").innerText =
+          "Please enter your phone number.";
+        isValid = false;
+      }
+
+      if (phone.length < 10) {
+        document.getElementById("phoneError").innerText =
+          "Phone number must be at least 10 digits long.";
+        isValid = false;
+      }
+
+      if (isValid) {
+        event.target.submit();
+      }
+    }
+    function fetchDocuments() {
+      $.get('/documents', function (data) {
+        let tableBody = '';
+        data.forEach(doc => {
+          tableBody += `
+                        <tr>
+                            <td>${doc.name}</td>
+                            <td>${doc.type}</td>
+                            <td>${doc.upload_date}</td>
+                            <td>${doc.size} MB</td>
+                            <td>
+                                <a href="/view/${doc.name}" target="_blank">View</a> | 
+                                <a href="#" onclick="deleteFile('${doc.name}')">Delete</a>
+                            </td>
+                        </tr>`;
+        });
+        $('#documentList').html(tableBody);
+      });
+    }
+
+    function uploadFile() {
+      let fileInput = $('#fileInput')[0].files[0];
+      if (!fileInput) {
+        alert("Please select a file.");
+        return;
+      }
+
+      let formData = new FormData();
+      formData.append('file', fileInput);
+
+      $.ajax({
+        url: '/upload',
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function () {
+          fetchDocuments();
+          $('#fileInput').val('');
+        },
+        error: function () {
+          alert("File upload failed.");
+        }
+      });
+    }
+    $(document).ready(function () {
+
+      function deleteFile(filename) {
+        console.log(`Deleting file: ${filename}`);
+        $.ajax({
+          url: `/delete/${filename}`,
+          type: 'DELETE',
+          headers: {
+            'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+          },
+          success: function (response) {
+
+            alert("File deleted successfully.");
+            $(`a.delete-file[data-filename="${filename}"]`).closest('tr').remove();
+
+          },
+          error: function () {
+            alert("Error deleting file.");
+          }
+        });
+      }
+
+
+      $('a.delete-file').on('click', function (e) {
+        e.preventDefault();
+        let filename = $(this).data('filename');
+        deleteFile(filename);
+      });
+    });
+
+    function saveCvAndRedirect(event) {
+      event.preventDefault();
+      const form = event.target;
+
+
+      form.submit();
+
+      setTimeout(function () {
+
+        const cvTab = document.querySelector('a[href="#cv"]');
+        if (cvTab) {
+          cvTab.click();
+        }
+      }, 500);
+    }
+    function saveDocAndRedirect(event) {
+      event.preventDefault();
+      const form = event.target;
+
+
+      form.submit();
+
+
+      setTimeout(function () {
+
+        const docTab = document.querySelector('a[href="#documents"]');
+        if (docTab) {
+          docTab.click();
+        }
+      }, 500);
+    }
+    function saveAppAndRedirect(event) {
+      event.preventDefault();
+      const form = event.target;
+
+
+      form.submit();
+
+
+      setTimeout(function () {
+
+        const appTab = document.querySelector('a[href="#applications"]');
+        if (appTab) {
+          appTab.click();
+        }
+      }, 500);
+    }
+    function saveEduAndRedirect(event) {
+      event.preventDefault();
+      const form = event.target;
+
+
+      form.submit();
+
+
+      setTimeout(function () {
+
+        const eduTab = document.querySelector('a[href="#education_new"]');
+        if (eduTab) {
+          eduTab.click();
+        }
+      }, 500);
+    }
+
+    function clearEducationForm() {
+      const form = document.querySelector('#education_new form');
+      if (form) {
+        form.querySelectorAll('input, textarea').forEach(field => {
+          field.value = '';
+        });
+      }
+    }
+    function addEducationForm() {
+      const container = document.getElementById('educationFormsContainer');
+      const template = `
+       <form method="POST" action="/save_education" onsubmit="saveEduAndRedirect(event)" class="education-form mb-4 p-3 border rounded position-relative">
+       <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2" onclick="deleteExperienceForm(this)">
+  <i class="fas fa-trash-alt"></i> Delete
+</button>
+       <div class="row">
+          <div class="col-md-6 mb-3">
+            <label>Institution</label>
+            <input type="text" name="institution" class="form-control" >
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Location</label>
+            <input type="text" name="location" class="form-control">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Degree</label>
+            <input type="text" name="degree" class="form-control" >
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Field of Study </label>
+            <input type="text" name="field_of_study" class="form-control" >
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Start Date</label>
+            <input type="date" name="start_date" class="form-control">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>End Date</label>
+            <input type="date" name="end_date" class="form-control">
+          </div>
+          <div class="col-12 mb-3">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Education</button>
+        <button type="button" class="btn btn-secondary ms-2" onclick="clearSpecificEducationForm(this)">Clear</button>
+      </form>`;
+      container.insertAdjacentHTML('beforeend', template);
+    }
+    function clearSpecificEducationForm(button) {
+      const form = button.closest('form');
+      if (form) {
+        form.querySelectorAll('input, textarea').forEach(field => field.value = '');
+      }
+    }
+    function deleteEducationForm(button) {
+      const form = button.closest('form');
+      if (form) {
+        form.remove();
+      }
+    }
+
+    function deleteEducationBackend(eduId) {
+      if (confirm('Are you sure you want to delete this education entry?')) {
+        fetch(`/delete_education/${eduId}`, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+          }
+        })
+          .then(response => {
+            if (response.ok) {
+
+              const form = document.getElementById(`edu-form-${eduId}`);
+              if (form) {
+                form.remove();
+              }
+            } else {
+              alert('Failed to delete. Please try again.');
+            }
+          })
+          .catch(error => {
+            console.error('Error deleting education:', error);
+            alert('An error occurred. Check console.');
+          });
+      }
+    }
+
+
+    function saveExpAndRedirect(event) {
+      event.preventDefault();
+      const form = event.target;
+
+
+      form.submit();
+
+
+      setTimeout(function () {
+
+        const expTab = document.querySelector('a[href="#experience"]');
+        if (expTab) {
+          expTab.click();
+        }
+      }, 500);
+    }
+
+    function addExperienceForm() {
+      const container = document.getElementById('experienceFormsContainer');
+      const template = `
+    <form method="POST" action="/save_experience" onsubmit="saveExpAndRedirect(event)" class="experience-form mb-4 p-3 border rounded position-relative">
+      <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2" onclick="deleteExperienceForm(this)">
+  <i class="fas fa-trash-alt"></i> Delete
+</button>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label>Company</label>
+          <input type="text" name="company" class="form-control" >
+        </div>
+        <div class="col-md-6 mb-3">
+          <label>Position</label>
+          <input type="text" name="position" class="form-control" >
+        </div>
+        <div class="col-md-6 mb-3">
+          <label>Location</label>
+          <input type="text" name="location" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label>Start Date</label>
+          <input type="date" name="start_date" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label>End Date</label>
+          <input type="date" name="end_date" class="form-control">
+        </div>
+        <div class="col-12 mb-3">
+          <label>Description</label>
+          <textarea name="description" class="form-control" rows="3"></textarea>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Save Experience</button>
+      <button type="button" class="btn btn-secondary ms-2" onclick="clearSpecificExperienceForm(this)">Clear</button>
+    </form>
+  `;
+      container.insertAdjacentHTML('beforeend', template);
+    }
+
+    function clearSpecificExperienceForm(button) {
+      const form = button.closest('form');
+      if (form) {
+        form.querySelectorAll('input, textarea').forEach(field => field.value = '');
+      }
+    }
+
+    function deleteExperienceForm(button) {
+      const form = button.closest('form');
+      if (form) {
+        form.remove();
+      }
+    }
+
+    function deleteExperienceBackend(expId) {
+      if (confirm('Are you sure you want to delete this work experience?')) {
+        fetch(`/delete_experience/${expId}`, {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+          .then(response => {
+            if (response.ok) {
+              const form = document.getElementById(`exp-form-${expId}`);
+              if (form) form.remove();
+            } else {
+              alert('Failed to delete experience. Try again.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Error occurred. Check console.');
+          });
+      }
+    }
+
+
+    let skills = [];
+    let languages = [];
+    let industries = [];
+
+    function addSkill(event) {
+      event.preventDefault();
+      const name = document.getElementById("skill-input").value;
+      const level = document.getElementById("skill-level").value;
+      if (!name) return;
+
+      skills.push({ name, level });
+      renderSkills();
+      document.getElementById("skill-input").value = '';
+    }
+
+    function deleteSkill(index) {
+      skills.splice(index, 1);
+      renderSkills();
+    }
+
+    function renderSkills() {
+      const container = document.getElementById("skills-container");
+      container.innerHTML = '';
+      skills.forEach((s, index) => {
+        container.innerHTML += `
+              <span class="badge bg-secondary">
+                ${s.name} (${s.level}) 
+                <button type="button" class="btn-close btn-close-white btn-sm ms-2" onclick="deleteSkill(${index})"></button>
+              </span>`;
+      });
+    }
+
+    function addLanguage(event) {
+      event.preventDefault();
+      const name = document.getElementById("language-input").value;
+      const level = document.getElementById("language-level").value;
+      if (!name) return;
+
+      languages.push({ name, level });
+      renderLanguages();
+      document.getElementById("language-input").value = '';
+    }
+
+    function deleteLanguage(index) {
+      languages.splice(index, 1);
+      renderLanguages();
+    }
+
+    function renderLanguages() {
+      const container = document.getElementById("languages-container");
+      container.innerHTML = '';
+      languages.forEach((l, index) => {
+        container.innerHTML += `
+              <span class="badge bg-info text-dark">
+                ${l.name} (${l.level}) 
+                <button type="button" class="btn-close btn-close-white btn-sm ms-2" onclick="deleteLanguage(${index})"></button>
+              </span>`;
+      });
+    }
+
+    function addIndustry(event) {
+      event.preventDefault();
+      const name = document.getElementById("industry-input").value;
+      if (!name) return;
+
+      industries.push(name);
+      renderIndustries();
+      document.getElementById("industry-input").value = '';
+    }
+
+    function deleteIndustry(index) {
+      industries.splice(index, 1);
+      renderIndustries();
+    }
+
+    function renderIndustries() {
+      const container = document.getElementById("industries-container");
+      container.innerHTML = '';
+      industries.forEach((i, index) => {
+        container.innerHTML += `
+              <span class="badge bg-warning text-dark">
+                ${i} 
+                <button type="button" class="btn-close btn-close-white btn-sm ms-2" onclick="deleteIndustry(${index})"></button>
+              </span>`;
+      });
+    }
+
+    function saveSkillAndRedirect(event) {
+      event.preventDefault();
+
+      const interest = document.querySelector("textarea[placeholder*='hiking']").value;
+      const reference = document.querySelector("textarea[placeholder='Available upon request']").value;
+
+      fetch('/save_skill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          skills,
+          languages,
+          industries,
+          interest,
+          reference
+        })
+      }).then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            alert("Saved successfully!");
+            // location.reload();
+          }
+        });
+    }
+    function saveCertAndRedirect(event) {
+      event.preventDefault();
+      const form = event.target;
+
+      form.submit();
+
+      setTimeout(function () {
+        const certificateTab = document.querySelector('a[href="#certificate"]');
+        if (certificateTab) {
+          certificateTab.click();
+        }
+      }, 500);
+    }
+    function addCertificateForm() {
+      const container = document.getElementById('certificateFormsContainer');
+      const template = `
+    <form method="POST" action="/save_certificate" onsubmit="saveCertAndRedirect(event)" class="certificate-form mb-4 p-3 border rounded position-relative">
+      <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Delete" onclick="deleteCertificateForm(this)"></button>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label>Certificate Name </label>
+          <input type="text" name="certificate_name" class="form-control" >
+        </div>
+        <div class="col-md-6 mb-3">
+          <label>Issuing Organization</label>
+          <input type="text" name="issuing_organization" class="form-control" >
+        </div>
+        <div class="col-md-6 mb-3">
+          <label>Issue Date</label>
+          <input type="date" name="issue_date" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label>Expiration Date</label>
+          <input type="date" name="expiration_date" class="form-control">
+        </div>
+        <div class="col-12 mb-3">
+          <label>Credential ID</label>
+          <input type="text" name="credential_id" class="form-control">
+        </div>
+        <div class="col-12 mb-3">
+          <label>Credential URL</label>
+          <input type="url" name="credential_url" class="form-control">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Save Certificate</button>
+      <button type="button" class="btn btn-secondary ms-2" onclick="clearSpecificCertificateForm(this)">Clear</button>
+    </form>
+  `;
+      container.insertAdjacentHTML('beforeend', template);
+    }
+    function clearSpecificCertificateForm(button) {
+      const form = button.closest('form');
+      if (form) {
+        form.querySelectorAll('input').forEach(field => field.value = '');
+      }
+    }
+    function deleteCertificateForm(button) {
+      const form = button.closest('form');
+      if (form) {
+        form.remove();
+      }
+    }
+    function deleteCertificateBackend(certId) {
+      if (confirm('Are you sure you want to delete this certificate?')) {
+        fetch(`/delete_certificate/${certId}`, {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+          .then(response => {
+            if (response.ok) {
+              const form = document.getElementById(`cert-form-${certId}`);
+              if (form) form.remove();
+            } else {
+              alert('Failed to delete certificate. Try again.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Error occurred. Check console.');
+          });
+      }
+    }
+  </script>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container.mt-5 {
+      flex: 1;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      display: block;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+    }
+
+    .globe-icon {
+      width: 24px;
+      height: 14px;
+      margin-right: 8px;
+      color: red;
+    }
+
+    .logo-text {
+      font-size: 16px;
+      color: #333;
+    }
+
+    footer {
+      position: relative;
+      min-height: 200px;
+      clear: both;
+    }
+
+    .footer-section {
+      flex: 1 1 200px;
+      margin: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .footer-section {
+        flex: 1 1 100%;
+        text-align: center;
+      }
+    }
+
+    #profileTabs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+  </style>
+
+</head>
+
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <div class="logo">
+        <i class="fa-solid fa-globe globe-icon"></i>
+        <span class="logo-text">WorkAbroad</span>
+      </div>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('find_jobs') }}">Find a Job</a>
+          </li>
+          {% if session.get('admin') %}
+          <li class="nav-item">
+            <a class="btn btn-primary ms-2" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+          </li>
+          {% endif %}
+          <!-- <li class="nav-item">
+            <a class="nav-link" href="#">Accommodation</a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="#">Transport</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">About Us</a></li> -->
+          <!-- <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Log In</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-danger" href="{{ url_for('signup') }}">Sign Up</a>
+          </li>
+           -->
+          {% if current_user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link ms-2 text-white" href="{{ url_for('logout') }}"
+              style="background-color: #6c757d; padding: 8px 16px; border-radius: 5px;">
+              Logout
+            </a>
+          </li>
+          {% else %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card shadow-sm p-4 text-start rounded-4">
+          <div class="d-flex align-items-center ustify-content-start gap-3 mb-3">
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="User Icon" width="60" height="60"
+              class="mb-2 rounded-circle" />
+            <div>
+              <h5 class="mb-0 fw-bold">{{ user['first_name'] }} {{ user['last_name'] }}</h5>
+              <p class="text-muted small">{{ user['email'] }}</p>
+            </div>
+          </div>
+          <hr>
+          <p class="mb-2"><strong class="d-block text-muted small">Location</strong>{{ user['address'] }}</p>
+          <p class="mb-2"><strong class="d-block text-muted small">Phone</strong>{{ user['phone'] }}</p>
+
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="card shadow-sm p-4">
+          <ul class="nav nav-tabs" id="profileTabs">
+            <li class="nav-item">
+              <a class="nav-link {% if tab == 'profile' %}active{% endif %}" data-bs-toggle="tab"
+                href="#profile">Profile</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if tab == 'cv' %}active{% endif %}" data-bs-toggle="tab" href="#cv">CV</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if tab == 'education_new' %}active{% endif %}" data-bs-toggle="tab"
+                href="#education_new">Education</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if tab == 'experience' %}active{% endif %}" data-bs-toggle="tab"
+                href="#experience">Experience</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if tab == 'skill' %}active{% endif %}" data-bs-toggle="tab" href="#skill">Skills</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if tab == 'certificate' %}active{% endif %}" data-bs-toggle="tab"
+                href="#certificate">Certificate</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if tab == 'applications' %}active{% endif %}" data-bs-toggle="tab"
+                href="#applications">Applications</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if tab == 'documents' %}active{% endif %}" data-bs-toggle="tab"
+                href="#documents">Documents</a>
+            </li>
+          </ul>
+
+          <div class="tab-content mt-3">
+            <div class="tab-pane fade {% if tab == 'profile' %}show active{% endif %}" id="profile">
+              <h3>Personal Information</h3>
+              <p>Enter your personal details and contact information</p>
+              <form action="{{ url_for('update_profile') }}" method="POST" onsubmit="validateForm(event)">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="mb-2 form-label">First Name</label>
+                    <input type="text" class="form-control" name="first_name" value="{{ user['first_name'] }}" />
+                    <span id="firstNameError" class="error-message"></span><br />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="mb-2 form-label">Last Name</label>
+                    <input type="text" class="form-control" name="last_name" value="{{ user['last_name'] }}" />
+                    <span id="lastNameError" class="error-message"></span><br />
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="mb-2 form-label">Email</label>
+                  <input type="email" class="form-control" name="email" value="{{ user['email'] }}" disabled />
+                </div>
+                <div class="mb-3">
+                  <label class="mb-2 form-label">Address</label>
+                  <input type="text" class="form-control" name="address" value="{{ user['address'] }}" />
+                  <span id="addressError" class="error-message"></span><br />
+                </div>
+                <div class="mb-3">
+                  <label class="mb-2 form-label">Phone Number</label>
+                  <input type="text" class="form-control" name="phone" value="{{ user['phone'] }}" />
+                  <span id="phoneError" class="error-message"></span><br />
+                </div>
+                <button type="submit" class="btn btn-danger" style="
+                      font-size: 18px;
+                      padding: 10px 20px;
+                      border-radius: 8px;
+                    ">
+                  <i class="bi bi-floppy" style="font-size: 20px; margin-right: 5px"></i>
+                  Save Changes
+                </button>
+                <button type="submit" class="btn btn-danger" style="
+                      font-size: 18px;
+                      padding: 10px 20px;
+                      border-radius: 8px;
+                    ">
+                  <a href="{{ url_for('logout') }}" style="color: white; text-decoration: none">Logout</a>
+                </button>
+              </form>
+            </div>
+            <div class="tab-pane fade {% if tab == 'cv' %}show active{% endif %}" id="cv">
+              <h3>Curriculum Vitae</h3>
+              <p class="text-muted">Build your CV to apply for jobs in Germany</p>
+              <form action="{{ url_for('save_cv') }}" method="POST" enctype="multipart/form-data"
+                onsubmit="saveCvAndRedirect(event)">
+                <div class="mb-3">
+                  <label class="form-label">Upload Your CV (PDF, DOCX)</label>
+                  <input type="file" name="cv_file" accept=".pdf,.doc,.docx" class="form-control">
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="saveCvAsFile()">Upload CV as File</button>
+              </form>
+              {% if user.cv_file %}
+              <div class="mt-3">
+                <a href="{{ url_for('view_cv_1', filename=user.cv_file) }}" target="_blank"
+                  class="btn btn-sm btn-primary">View
+                  CV</a>
+                <a href="{{ url_for('download_cv_1', filename=user.cv_file) }}" class="btn btn-sm btn-success">Download
+                  CV</a>
+                <form action="{{ url_for('delete_cv_1', filename=user.cv_file) }}" method="POST"
+                  style="display:inline;">
+                  <button type="submit" class="btn btn-sm btn-danger"
+                    onclick="return confirm('Are you sure you want to delete your CV?')">Delete CV</button>
+                </form>
+              </div>
+              {% else %}
+              <p class="text-muted mt-3">No CV File Uploaded</p>
+              {% endif %}
+ 
+              <hr class="my-4">
+ 
+              <form action="{{ url_for('save_cv') }}" method="POST" enctype="multipart/form-data"
+                onsubmit="saveCvAndRedirect(event)">
+                <div class="mb-3">
+                  <label class="mb-2">Education</label>
+                  <textarea class="form-control" rows="4"
+                    name="education">{% if user_cv and user_cv.education %}{{ user_cv.education }}{% endif %}</textarea>
+                </div>
+ 
+                <div class="mb-3">
+                  <label class="mb-2">Work Experience</label>
+                  <textarea class="form-control" rows="4"
+                    name="work_experience">{% if user_cv and user_cv.work_experience %}{{ user_cv.work_experience }}{% endif %}</textarea>
+                </div>
+ 
+                <div class="mb-3">
+                  <label class="mb-2">Skills & Languages</label>
+                  <textarea class="form-control" rows="4"
+                    name="skills_languages">{% if user_cv and user_cv.skills_languages %}{{ user_cv.skills_languages }}{% endif %}</textarea>
+                </div>
+ 
+                <div class="mb-3">
+                  <label class="mb-2">Additional Information</label>
+                  <textarea class="form-control" rows="4"
+                    name="additional_info">{% if user_cv and user_cv.additional_info %}{{ user_cv.additional_info }}{% endif %}</textarea>
+                </div>
+ 
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-primary" onclick="saveCvAsText()">Save CV as Text</button>
+                  <button type="button" class="btn btn-success" onclick="saveCvAsBoth()">Save Both</button>
+                </div>
+              </form>
+            </div>
+ 
+            <script>
+              function saveCvAsText() {
+                // Create a hidden form for text-only submission
+                const form = document.getElementById('cvForm');
+                const hiddenForm = document.createElement('form');
+                hiddenForm.method = 'POST';
+                hiddenForm.action = "{{ url_for('save_cv') }}";
+ 
+                // Copy all text fields
+                const textFields = ['education', 'work_experience', 'skills_languages', 'additional_info'];
+                textFields.forEach(field => {
+                  const input = document.createElement('input');
+                  input.type = 'hidden';
+                  input.name = field;
+                  input.value = document.querySelector(`[name="${field}"]`).value;
+                  hiddenForm.appendChild(input);
+                });
+ 
+                document.body.appendChild(hiddenForm);
+                hiddenForm.submit();
+              }
+ 
+              function saveCvAsFile() {
+                const fileInput = document.querySelector('input[name="cv_file"]');
+                if (!fileInput.files || fileInput.files.length === 0) {
+                  alert('Please select a file to upload.');
+                  return;
+                }
+ 
+                // Create a hidden form for file-only submission
+                const form = document.getElementById('cvForm');
+                const hiddenForm = document.createElement('form');
+                hiddenForm.method = 'POST';
+                hiddenForm.action = "{{ url_for('save_cv') }}";
+                hiddenForm.enctype = 'multipart/form-data';
+ 
+                // Add file_only flag
+                const flagInput = document.createElement('input');
+                flagInput.type = 'hidden';
+                flagInput.name = 'file_only';
+                flagInput.value = '1';
+                hiddenForm.appendChild(flagInput);
+ 
+                // Add file input
+                const newFileInput = document.createElement('input');
+                newFileInput.type = 'file';
+                newFileInput.name = 'cv_file';
+ 
+                // Create a new DataTransfer to add the file
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(fileInput.files[0]);
+                newFileInput.files = dataTransfer.files;
+ 
+                // We need to append the input to the form, but can't directly set files
+                // So we'll use a different approach
+                const formData = new FormData();
+                formData.append('file_only', '1');
+                formData.append('cv_file', fileInput.files[0]);
+ 
+                fetch("{{ url_for('save_cv') }}", {
+                  method: 'POST',
+                  body: formData
+                }).then(response => {
+                  if (response.ok) {
+                    window.location.reload();
+                  } else {
+                    alert('Error uploading file');
+                  }
+                });
+              }
+ 
+              function saveCvAsBoth() {
+                const form = document.querySelector('form[action="{{ url_for('save_cv') }}"]');
+                const formData = new FormData(form);
+ 
+                // Add text fields to the FormData
+                const textFields = ['education', 'work_experience', 'skills_languages', 'additional_info'];
+                textFields.forEach(field => {
+                  formData.append(field, document.querySelector(`[name="${field}"]`).value);
+                });
+ 
+                // Add a flag to indicate both text and file should be saved
+                formData.append('save_both', '1');
+ 
+                fetch("{{ url_for('save_cv') }}", {
+                  method: 'POST',
+                  body: formData
+                }).then(response => {
+                  if (response.ok) {
+                    window.location.reload();
+                  } else {
+                    alert('Error saving CV');
+                  }
+                });
+              }
+            </script>
+
+
+ <!-- <div class="tab-pane fade {% if tab == 'cv' %}show active{% endif %}" id="cv">
+              <h3>Curriculum Vitae</h3>
+              
+              <p class="text-muted">
+                Build your CV to apply for jobs in Germany
+              </p>
+              <hr class="my-4">
+
+
+              <form action="{{ url_for('upload_cv_file') }}" method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                  <label class="form-label">Upload Your CV (PDF, DOCX)</label>
+                  <input type="file" name="cv_file" accept=".pdf,.doc,.docx" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success">
+                  <i class="bi bi-upload" style="margin-right: 5px;"></i>
+                  Upload CV as File
+                </button>
+              </form>
+              {% if user.cv_file %}
+              <div class="mt-3">
+                <a href="{{ url_for('view_cv', user_id=user.id) }}" target="_blank" class="btn btn-sm btn-primary">
+                  View CV
+                </a>
+                <a href="{{ url_for('download_cv', user_id=user.id) }}" class="btn btn-sm btn-success">
+                  Download CV
+                </a>
+                <form action="{{ url_for('delete_cv', user_id=user.id) }}" method="POST" style="display:inline;">
+                  <button type="submit" class="btn btn-sm btn-danger"
+                    onclick="return confirm('Are you sure you want to delete your CV?')">
+                    Delete CV
+                  </button>
+                </form>
+              </div>
+              {% else %}
+              <p class="text-muted mt-3">No CV File Uploaded</p>
+              {% endif %}
+
+              <form action="{{ url_for('save_cv') }}" method="POST" onsubmit="saveCvAndRedirect(event)">
+                <div class="mb-3">
+                  <label class="mb-2">Education</label>
+                  <textarea class="form-control" rows="4" name="education"
+                    placeholder="Enter your education details (e.g., University Name, Degree, Years)">{{ education }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label class="mb-2">Work Experience</label>
+                  <textarea class="form-control" rows="4" name="work_experience"
+                    placeholder="Enter your work experience details (e.g., Job Title, Company, Years Worked, Responsibilities)">{{ work_experience }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label class="mb-2">Skills & Languages</label>
+                  <textarea class="form-control" rows="4" name="skills_languages"
+                    placeholder="List your skills and languages">{{ skills_languages }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label class="mb-2">Additional Information</label>
+                  <textarea class="form-control" rows="4" name="additional_info"
+                    placeholder="Any additional information (e.g., available to relocate)">{{ additional_info }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary me-2">
+                  <i class="bi bi-floppy" style="margin-right: 5px;"></i>
+                  Save CV as Text
+                </button>
+              </form>
+              <hr class="my-4">
+
+
+               <form action="{{ url_for('upload_cv_file') }}" method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                  <label class="form-label">Upload Your CV (PDF, DOCX)</label>
+                  <input type="file" name="cv_file" accept=".pdf,.doc,.docx" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success">
+                  <i class="bi bi-upload" style="margin-right: 5px;"></i>
+                  Upload CV as File
+                </button>
+              </form>
+              {% if user.cv_file %}
+              <div class="mt-3">
+                <a href="{{ url_for('view_cv', user_id=user.id) }}" target="_blank" class="btn btn-sm btn-primary">
+                  View CV
+                </a>
+                <a href="{{ url_for('download_cv', user_id=user.id) }}" class="btn btn-sm btn-success">
+                  Download CV
+                </a>
+                <form action="{{ url_for('delete_cv', user_id=user.id) }}" method="POST" style="display:inline;">
+                  <button type="submit" class="btn btn-sm btn-danger"
+                    onclick="return confirm('Are you sure you want to delete your CV?')">
+                    Delete CV
+                  </button>
+                </form>
+              </div>
+              {% else %}
+              <p class="text-muted mt-3">No CV File Uploaded</p>
+              {% endif %}
+
+            </div> -->
+            <div class="tab-pane fade {% if tab == 'education_new' %}show active{% endif %}" id="education_new">
+              <button type="button" class="btn btn-success mb-3" onclick="addEducationForm()">Add Education</button>
+
+              <div id="educationFormsContainer">
+                {% for edu in all_educations %}
+                <form method="POST" action="/save_education" onsubmit="saveEduAndRedirect(event)"
+                  class="education-form mb-4 p-3 border rounded position-relative" id="edu-form-{{ edu.id }}">
+
+                  <input type="hidden" name="edu_id" value="{{ edu.id }}">
+                  <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2"
+                    onclick="deleteEducationBackend({{ edu.id }})">
+                    <i class="fas fa-trash-alt"></i> Delete
+                  </button>
+
+
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label>Institution </label>
+                      <input type="text" name="institution" class="form-control" value="{{ edu.institution }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Location</label>
+                      <input type="text" name="location" class="form-control" value="{{ edu.location }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Degree</label>
+                      <input type="text" name="degree" class="form-control" value="{{ edu.degree }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Field of Study</label>
+                      <input type="text" name="field_of_study" class="form-control" value="{{ edu.field_of_study }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Start Date</label>
+                      <input type="date" name="start_date" class="form-control" value="{{ edu.start_date }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>End Date</label>
+                      <input type="date" name="end_date" class="form-control" value="{{ edu.end_date }}">
+                    </div>
+                    <div class="col-12 mb-3">
+                      <label>Description</label>
+                      <textarea name="description" class="form-control" rows="3">{{ edu.description }}</textarea>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Save Education</button>
+                  <button type="button" class="btn btn-secondary ms-2"
+                    onclick="clearSpecificEducationForm(this)">Clear</button>
+                </form>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="tab-pane fade {% if tab == 'experience' %}show active{% endif %}" id="experience">
+              <button type="button" class="btn btn-success mb-3" onclick="addExperienceForm()">Add Experience</button>
+
+              <div id="experienceFormsContainer">
+                {% for exp in all_experiences %}
+                <form method="POST" action="/save_experience" onsubmit="saveExpAndRedirect(event)"
+                  class="experience-form mb-4 p-3 border rounded position-relative" id="exp-form-{{ exp.id }}">
+
+                  <input type="hidden" name="exp_id" value="{{ exp.id }}">
+                  <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2"
+                    onclick="deleteExperienceBackend({{ exp.id }})">
+                    <i class="fas fa-trash-alt"></i> Delete
+                  </button>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label>Company </label>
+                      <input type="text" name="company" class="form-control" value="{{ exp.company }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Position </label>
+                      <input type="text" name="position" class="form-control" value="{{ exp.position }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Location</label>
+                      <input type="text" name="location" class="form-control" value="{{ exp.location }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Start Date</label>
+                      <input type="date" name="start_date" class="form-control" value="{{ exp.start_date }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>End Date</label>
+                      <input type="date" name="end_date" class="form-control" value="{{ exp.end_date }}">
+                    </div>
+                    <div class="col-12 mb-3">
+                      <label>Description</label>
+                      <textarea name="description" class="form-control" rows="3">{{ exp.description }}</textarea>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Save Experience</button>
+                  <button type="button" class="btn btn-secondary ms-2"
+                    onclick="clearSpecificExperienceForm(this)">Clear</button>
+                </form>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="tab-pane fade {% if tab == 'skill' %}show active{% endif %}" id="skill">
+              <form method="POST" action="/save_skill" onsubmit="saveSkillAndRedirect(event)">
+                <div class="container py-4">
+
+
+                  <h5>Skills</h5>
+                  <p class="text-muted">Add your professional skills and expertise</p>
+                  <div id="skills-container" class="mb-3 d-flex flex-wrap gap-2"></div>
+
+                  <div class="input-group mb-3">
+                    <input type="text" id="skill-input" class="form-control" placeholder="Add a skill"
+                      name="skill-name">
+                    <select id="skill-level" class="form-select" style="max-width: 200px;" name="skill-level">
+                      <option value="Expert">Expert</option>
+                      <option value="Advanced">Advanced</option>
+                      <option value="Intermediate">Intermediate</option>
+                      <option value="Beginner">Beginner</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="addSkill(event)">Add</button>
+                  </div>
+
+
+                  <h5>Languages</h5>
+                  <p class="text-muted">Add languages you speak</p>
+                  <div id="languages-container" class="mb-3 d-flex flex-wrap gap-2"></div>
+
+                  <div class="input-group mb-3">
+                    <input type="text" id="language-input" class="form-control" placeholder="Add a language"
+                      name="language-name">
+                    <select id="language-level" class="form-select" style="max-width: 200px;" name="language-level">
+                      <option value="Native">Native</option>
+                      <option value="C2">C2 - Proficient</option>
+                      <option value="C1">C1 - Advanced</option>
+                      <option value="B2">B2 - Upper Intermediate</option>
+                      <option value="B1">B1 - Intermediate</option>
+                      <option value="A2">A2 - Elementary</option>
+                      <option value="A1">A1 - Beginner</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="addLanguage(event)">Add</button>
+                  </div>
+
+
+                  <h5>Industries</h5>
+                  <p class="text-muted">Select industries you're interested in working in</p>
+                  <div id="industries-container" class="mb-3 d-flex flex-wrap gap-2"></div>
+
+                  <div class="input-group mb-3">
+                    <input type="text" id="industry-input" class="form-control" placeholder="Add an industry"
+                      name="industry-name">
+                    <button class="btn btn-primary" onclick="addIndustry(event)">Add</button>
+                  </div>
+
+
+                  <h5>Additional Information</h5>
+                  <p class="mb-1"><strong>Interests & Hobbies</strong></p>
+                  <textarea class="form-control mb-3" rows="2" placeholder="Cooking, hiking, learning languages, travel"
+                    name="interest"></textarea>
+
+
+                  <p class="mb-1"><strong>References</strong></p>
+                  <textarea class="form-control" rows="2" placeholder="Available upon request"
+                    name="reference">Available upon request</textarea>
+                  <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="tab-pane fade {% if tab == 'certificate' %}show active{% endif %}" id="certificate">
+              <button type="button" class="btn btn-success mb-3" onclick="addCertificateForm()">Add Certificate</button>
+
+              <div id="certificateFormsContainer">
+                {% for cert in all_certificates %}
+                <form method="POST" action="/save_certificate" onsubmit="saveCertAndRedirect(event)"
+                  class="certificate-form mb-4 p-3 border rounded position-relative" id="cert-form-{{ cert.id }}">
+
+                  <input type="hidden" name="cert_id" value="{{ cert.id }}">
+                  <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2"
+                    onclick="deleteCertificateBackend({{ cert.id }})">
+                    <i class="fas fa-trash-alt"></i> Delete
+                  </button>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label>Certificate Name </label>
+                      <input type="text" name="certificate_name" class="form-control"
+                        value="{{ cert.certificate_name }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Issuing Organization </label>
+                      <input type="text" name="issuing_organization" class="form-control"
+                        value="{{ cert.issuing_organization }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Issue Date</label>
+                      <input type="date" name="issue_date" class="form-control" value="{{ cert.issue_date }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Expiration Date</label>
+                      <input type="date" name="expiration_date" class="form-control" value="{{ cert.expiration_date }}">
+                    </div>
+                    <div class="col-12 mb-3">
+                      <label>Credential ID</label>
+                      <input type="text" name="credential_id" class="form-control" value="{{ cert.credential_id }}">
+                    </div>
+                    <div class="col-12 mb-3">
+                      <label>Credential URL</label>
+                      <input type="url" name="credential_url" class="form-control" value="{{ cert.credential_url }}">
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Save Certificate</button>
+                  <button type="button" class="btn btn-secondary ms-2"
+                    onclick="clearSpecificCertificateForm(this)">Clear</button>
+                </form>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="tab-pane fade {% if tab == 'applications' %}show active{% endif %}" id="applications">
+              <h5 class="mt-3">Applications</h5>
+
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Sr No</th>
+                    <th>Job Name</th>
+                    <th>Job Type</th>
+                    <th>Company Name</th>
+                    <th>Status</th>
+                    <!-- <th>Edit</th> -->
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for job in jobs %}
+                  <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ job.job_name }}</td>
+                    <td>{{ job.job_type }}</td>
+                    <td>{{ job.company_name }}</td>
+                    <td>{{ job.status }}</td>
+
+
+
+                    <!-- <td>
+                              <a href="{{ url_for('edit_job', job_id=job.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                              <form action="{{ url_for('delete_job', job_id=job.id) }}" method="POST" style="display:inline;">
+                                  <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this job?');">Delete</button>
+                              </form>
+                          </td> -->
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+              <div class="d-flex flex-wrap gap-3 mt-4">
+                {% for job in jobs %}
+                <div class="card p-3" style="width: 18rem;">
+                  <h5>{{ job.job_name }}</h5>
+                  <p class="mb-1"><strong>{{ job.company_name }}</strong></p>
+                  <a href="{{ url_for('view_job', job_id=job.id) }}" class="btn btn-primary btn-sm">View Job</a>
+                </div>
+                {% endfor %}
+              </div>
+
+              <!-- <button class="btn btn-success mt-4" type="button" data-bs-toggle="collapse" data-bs-target="#jobForm">
+                  Add a New Job
+              </button>
+          
+              <div class="collapse mt-3" id="jobForm">
+                  <form action="{{ url_for('add_job') }}" onsubmit="saveAppAndRedirect(event)" method="POST">
+                      <div class="mb-2">
+                          <input type="text" class="form-control" name="job_name" placeholder="Job Name" required>
+                      </div>
+                      <div class="mb-2">
+                          <input type="text" class="form-control" name="job_type" placeholder="Job Type" required>
+                      </div>
+                      <div class="mb-2">
+                          <input type="text" class="form-control" name="company_name" placeholder="Company Name" required>
+                      </div>
+                      <div class="mb-2">
+                          <textarea class="form-control" name="job_description" placeholder="Job Description" rows="3" required></textarea>
+                      </div>
+                      <button type="submit" class="btn btn-primary">Submit Job</button>
+                  </form>
+              </div> -->
+            </div>
+
+
+            <div class="tab-pane fade {% if tab == 'documents' %}show active{% endif %}" id="documents">
+              <h2>Documents</h2>
+              <form action="{{ url_for('upload') }}" method="POST" onsubmit="saveDocAndRedirect(event)"
+                enctype="multipart/form-data">
+                <input type="file" name="file" class="form-control mb-3" required>
+                <button class="btn btn-danger" type="submit">Upload Document</button>
+              </form>
+              <table class="table table-striped mt-4">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Upload Date</th>
+                    <th>Size</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="documentList">
+                  {% for doc in documents %}
+                  <tr>
+                    <td>{{ doc.name }}</td>
+                    <td>{{ doc.type }}</td>
+                    <td>{{ doc.upload_date }}</td>
+                    <td>{{ doc.size }} MB</td>
+                    <td>
+                      <a href="{{ url_for('view_file', filename=doc.name) }}" target="_blank">View</a> |
+                      <a href="#" class="delete-file" data-filename="{{ doc.name }}">Delete</a>
+                      <a href="{{ url_for('download_file', filename=doc.name) }}">
+                        <i class="bi bi-download" style="font-size: 18px;"></i> Download
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <footer class="bg-dark text-white py-4">
+    <div class="container">
+      <div class="d-flex flex-wrap justify-content-between align-items-start">
+
+        <div class="footer-section">
+          <h5><i class="fa-solid fa-globe text-danger"></i> WorkAbroad</h5>
+          <p>
+            Helping international workers find jobs, accommodation, and
+            services in Germany.
+          </p>
+          <div>
+            <a href="#" class="text-white me-3"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+          </div>
+        </div>
+
+
+        <div class="footer-section">
+          <h5>Services</h5>
+          <ul class="list-unstyled mb-0">
+            <li>
+              <a href="#" class="text-white text-decoration-none">Jobs in Germany</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Accommodation</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Transport Services</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Language Support</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Tax Refund Assistance</a>
+            </li>
+          </ul>
+        </div>
+
+
+        <div class="footer-section">
+          <h5>For Workers</h5>
+          <ul class="list-unstyled mb-0">
+            <li>
+              <a href="#" class="text-white text-decoration-none">Your Profile</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Service Packages</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Working in Germany</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">FAQ</a>
+            </li>
+            <li>
+              <a href="#" class="text-white text-decoration-none">Travel Tips</a>
+            </li>
+          </ul>
+        </div>
+
+
+        <div class="footer-section">
+          <h5>Contact Us</h5>
+          <p>
+            <i class="fas fa-map-marker-alt text-danger"></i> Friedrichstraße
+            123, 10117 Berlin
+          </p>
+          <p><i class="fas fa-phone-alt text-danger"></i> +49 30 123456789</p>
+          <p>
+            <i class="fas fa-envelope text-danger"></i> info@workabroad.de
+          </p>
+        </div>
+      </div>
+
+      <hr class="bg-white my-3" />
+
+      <div class="d-flex justify-content-between align-items-center flex-wrap mt-4">
+        <p class="mb-0">© 2025 WorkAbroad. All rights reserved.</p>
+
+        <div class="ms-auto">
+          <a href="#" class="text-white me-3 text-decoration-none">Privacy Policy</a>
+          <a href="#" class="text-white me-3 text-decoration-none">Terms of Service</a>
+          <a href="#" class="text-white text-decoration-none">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

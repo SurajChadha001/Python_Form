@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Authentication Pages</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script>
+      async function validateForm(event) {
+        event.preventDefault()
+      
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+      
+        const firstName = document.querySelector('input[name="first_name"]').value.trim()
+        const lastName = document.querySelector('input[name="last_name"]').value.trim()
+        const email = document.querySelector('input[name="email"]').value.trim()
+        const password = document.querySelector('input[name="password"]').value
+        const phone = document.querySelector('input[name="phone"]').value.trim()
+        const address = document.querySelector('input[name="address"]').value.trim()
+      
+        // Clear all previous error messages
+        document.getElementById('firstNameError').innerText = ''
+        document.getElementById('lastNameError').innerText = ''
+        document.getElementById('emailError').innerText = ''
+        document.getElementById('passwordError').innerText = ''
+        document.getElementById('phoneError').innerText = ''
+        document.getElementById('addressError').innerText = ''
+      
+        let hasError = false
+      
+        if (!firstName || firstName.length < 3) {
+          document.getElementById('firstNameError').innerText = 'Please enter a valid first name (at least 3 characters).'
+          hasError = true
+        }
+      
+        if (!lastName || lastName.length < 3) {
+          document.getElementById('lastNameError').innerText = 'Please enter a valid last name (at least 3 characters).'
+          hasError = true
+        }
+      
+        if (!email) {
+          document.getElementById('emailError').innerText = 'Please enter your email.'
+          hasError = true
+        } else if (!emailRegex.test(email)) {
+          document.getElementById('emailError').innerText = 'Please enter a valid email address.'
+          hasError = true
+        }
+        // Email uniqueness validation (server-side check)
+        try {
+          const response = await fetch('/validate_email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email })
+          })
+      
+          const result = await response.json()
+      
+          if (response.status !== 200) {
+            document.getElementById('emailError').innerText = result.error || 'Email already exists or is invalid.'
+            return false
+          }
+        } catch (error) {
+          console.error('Validation error:', error)
+          document.getElementById('emailError').innerText = 'Server error. Please try again later.'
+          return false
+        }
+        if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password) || password.length < 8) {
+          document.getElementById('passwordError').innerText = 'Password must contain upper/lower case letters, a number, a special character, and be at least 8 characters long.'
+          hasError = true
+        }
+      
+        if (!phone || phone.length < 10) {
+          document.getElementById('phoneError').innerText = 'Please enter a valid 10-digit phone number.'
+          hasError = true
+        }
+      
+        if (!address) {
+          document.getElementById('addressError').innerText = 'Please enter your address.'
+          hasError = true
+        }
+      
+        // If any field validation failed, stop submission
+        if (hasError) return false
+      
+        // All validations passed – submit the form
+        document.getElementById('signupForm').submit()
+      }
+    </script>
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .container.mt-5 {
+        flex: 1;
+      }
+      .error-message {
+        color: red;
+        font-size: 12px;
+        margin-top: 5px;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        font-weight: 700;
+      }
+      
+      .globe-icon {
+        width: 24px;
+        height: 14px;
+        margin-right: 8px;
+        color: red;
+      }
+      
+      .logo-text {
+        font-size: 16px;
+        color: #333;
+      }
+      footer {
+        position: relative;
+        min-height: 200px;
+        clear: both;
+      }
+      .footer-section {
+        flex: 1 1 200px;
+        margin: 10px;
+      }
+      @media (max-width: 768px) {
+        .footer-section {
+          flex: 1 1 100%;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+      <div class="container">
+        <div class="logo">
+          <i class="fa-solid fa-globe globe-icon"></i>
+          <span class="logo-text">WorkAbroad</span>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <!-- <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Our Services</a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#">Service 1</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">Service 2</a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Find a Job</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Accommodation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Transport</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">About Us</a>
+            </li> -->
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('login') }}">Log In</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-danger" href="{{ url_for('signup') }}">Sign Up</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="d-flex justify-content-center align-items-center vh-100" id="signup">
+      <div class="container bg-white p-4 rounded shadow" style="max-width: 600px">
+        <h2 class="mb-3 text-center">Sign Up</h2>
+        <form method="POST" action="{{ url_for('signup') }}" id="signupForm" onsubmit="return validateForm(event)">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">First Name</label>
+              <input type="text" name="first_name" class="form-control" placeholder="Enter first name" />
+              <span id="firstNameError" class="error-message"></span><br />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Last Name</label>
+              <input type="text" name="last_name" class="form-control" placeholder="Enter last name" />
+              <span id="lastNameError" class="error-message"></span><br />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="text" name="email" class="form-control" placeholder="Enter your email" />
+            <span id="emailError" class="error-message"></span><br />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" placeholder="Create a password" />
+            <span id="passwordError" class="error-message"></span><br />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Phone Number</label>
+            <input type="number" name="phone" class="form-control" placeholder="Enter your phone number" />
+            <span id="phoneError" class="error-message"></span><br />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Address</label>
+            <input type="text" name="address" class="form-control" placeholder="Enter your Address" />
+            <span id="addressError" class="error-message"></span><br />
+          </div>
+
+          <button type="submit" class="btn btn-danger w-100">Sign Up</button>
+
+          <p class="text-center mt-3">
+            Already have an account? <a href="{{ url_for('login') }}">Login</a>
+          </p>
+        </form>
+      </div>
+    </div>
+    <footer class="bg-dark text-white py-4">
+      <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-start">
+          <div class="footer-section">
+            <h5><i class="fa-solid fa-globe text-danger"></i> WorkAbroad</h5>
+            <p>Helping international workers find jobs, accommodation, and services in Germany.</p>
+            <div>
+              <a href="#" class="text-white me-3"><i class="fab fa-facebook"></i></a>
+              <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+              <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+            </div>
+          </div>
+
+          <div class="footer-section">
+            <h5>Services</h5>
+            <ul class="list-unstyled mb-0">
+              <li>
+                <a href="#" class="text-white text-decoration-none">Jobs in Germany</a>
+              </li>
+              <li>
+                <a href="#" class="text-white text-decoration-none">Accommodation</a>
+              </li>
+              <li>
+                <a href="#" class="text-white text-decoration-none">Transport Services</a>
+              </li>
+              <li>
+                <a href="#" class="text-white text-decoration-none">Language Support</a>
+              </li>
+              <li>
+                <a href="#" class="text-white text-decoration-none">Tax Refund Assistance</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h5>For Workers</h5>
+            <ul class="list-unstyled mb-0">
+              <li>
+                <a href="#" class="text-white text-decoration-none">Your Profile</a>
+              </li>
+              <li>
+                <a href="#" class="text-white text-decoration-none">Service Packages</a>
+              </li>
+              <li>
+                <a href="#" class="text-white text-decoration-none">Working in Germany</a>
+              </li>
+              <li>
+                <a href="#" class="text-white text-decoration-none">FAQ</a>
+              </li>
+              <li>
+                <a href="#" class="text-white text-decoration-none">Travel Tips</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h5>Contact Us</h5>
+            <p>
+              <i class="fas fa-map-marker-alt text-danger"></i> Friedrichstraße 123, 10117 Berlin
+            </p>
+            <p>
+              <i class="fas fa-phone-alt text-danger"></i> +49 30 123456789
+            </p>
+            <p>
+              <i class="fas fa-envelope text-danger"></i> info@workabroad.de
+            </p>
+          </div>
+        </div>
+
+        <hr class="bg-white my-3" />
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap mt-4">
+          <p class="mb-0">© 2025 WorkAbroad. All rights reserved.</p>
+
+          <div class="ms-auto">
+            <a href="#" class="text-white me-3 text-decoration-none">Privacy Policy</a>
+            <a href="#" class="text-white me-3 text-decoration-none">Terms of Service</a>
+            <a href="#" class="text-white text-decoration-none">Cookie Policy</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
